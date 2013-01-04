@@ -1,0 +1,165 @@
+<?xml version="1.0"?>
+<config>
+	  <tabs>
+		<xpdevtab translate="label" module="emailtracker">
+            <label>XPDEV Extensions</label>
+            <sort_order>0</sort_order>
+        </xpdevtab>
+	  </tabs>
+	  <sections>
+		<emailtracker  translate="label" module="emailtracker">                    
+		<label>Rastreador por Email</label>
+		<tab>xpdevtab</tab>
+		<frontend_type>text</frontend_type>
+		<sort_order>0</sort_order>
+		<show_in_default>1</show_in_default>
+		<show_in_website>1</show_in_website>
+		<show_in_store>1</show_in_store>
+					<groups>
+				      <options translate="label"> 
+					  <label>Opções</label>
+					  <frontend_type>text</frontend_type>
+					  <sort_order>0</sort_order>
+					  <show_in_default>1</show_in_default>
+					  <show_in_website>1</show_in_website>
+					  <show_in_store>1</show_in_store>
+				       <fields>
+                          <stop translate="label">
+                            <label>Enviar email apenas após mudanças de status.</label>
+							<frontend_type>select</frontend_type>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <comment>Essa opção implica em o cliente receber emails após a entrega do produto.</comment>
+                          </stop>
+                          <sender translate="label">
+                            <label>Email para Envio</label>
+							<frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                          </sender>
+                          <name translate="label">
+                            <label>Nome do Remetente</label>
+							<frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Nome do remetente que aparecerá na caixa de entrada do usuário.</comment>
+                          </name>
+                          <subject translate="label">
+                            <label>Assunto do Email</label>
+							<frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Ao final do assunto, será anexado o número do seu pedido.</comment>
+                          </subject>
+                          <separador translate="label">
+                            <label>Caracter separador</label>
+							<frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Digite o caracter (ou caracteres) que irão separar o assunto do número do pedido.</comment>
+                          </separador>
+                          <html translate="label">
+                            <label>HTML do Email</label>
+							<frontend_type>textarea</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Caso você deseje substituir a mensagem padrão do email, entre com o HTML aqui. Para desativar a mensagem personalizada, deixe em branco.
+                            Podem ser utilizados os seguintes tokens:
+                            %%cliente%% - Nome do cliente;
+                            %%pedido%% - Número do pedido;
+                            %%status%% - Último estado da entrega;
+                            %%preco%% - Preço total do pedido;</comment>
+                          </html>
+					   </fields>
+					   </options>
+                       
+                       <visual translate="label"> 
+					   <label>Visual do Email</label>
+					   <frontend_type>text</frontend_type>
+					   <sort_order>50</sort_order>
+					   <show_in_default>1</show_in_default>
+					   <show_in_website>1</show_in_website>
+					   <show_in_store>1</show_in_store>
+				       <fields>
+                          <tam1 translate="label">
+                            <label>Tamanho da célula Localização</label>
+							<frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Tamanho em px referente a largura.</comment>
+                          </tam1>
+                          <tam2 translate="label">
+                            <label>Tamanho da célula Data</label>
+							<frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Tamanho em px referente a largura</comment>
+                          </tam2>
+                          <tam3 translate="label">
+                            <label>Tamanho da célula Hora Local</label>
+							<frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Tamanho em px referente a largura</comment>
+                          </tam3>
+                          <tam4 translate="label">
+                            <label>Tamanho da célula Descrição</label>
+							<frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Tamanho em px referente a largura</comment>
+                          </tam4>
+                          <bodercolor translate="label">
+                            <label>Cor da Borda da Tabela</label>
+							<frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Não utilize o # na frente do código html.</comment>
+                          </bodercolor>
+                          <trcolor translate="label">
+                            <label>Cor do fundo dos títulos da tabela</label>
+							<frontend_type>text</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Não utilize o # na frente do código html.</comment>
+                          </trcolor>
+                          <tdcolor translate="label">
+                            <label>Cor do fundo das células da tabela</label>
+							<frontend_type>text</frontend_type>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Não utilize o # na frente do código html.</comment>
+                          </tdcolor>
+					   </fields>
+					   </visual>
+					</groups>
+		</emailtracker>
+	  </sections>
+</config>

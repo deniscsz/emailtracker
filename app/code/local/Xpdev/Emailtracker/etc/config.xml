@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<config>
+  <modules>
+    <Xpdev_Emailtracker>
+      <version>0.1.0</version>
+    </Xpdev_Emailtracker>
+  </modules>
+  <global>
+    <helpers>
+      <emailtracker>
+        <class>Xpdev_Emailtracker_Helper</class>
+      </emailtracker>
+    </helpers>
+	<models>
+	  <emailtracker>
+		<class>Xpdev_Emailtracker_Model</class>
+		<resourceModel>emailtracker_mysql4</resourceModel>
+	  </emailtracker>
+	</models>
+  </global>    
+    <crontab>
+        <jobs>            
+			<emailtracker_verificaemailtracker>
+                <schedule><cron_expr>*/60 * * * *</cron_expr></schedule>
+                <run><model>emailtracker/cron::VerificaEmailTracker</model></run>
+            </emailtracker_verificaemailtracker>
+        </jobs>
+    </crontab>
+</config> 
