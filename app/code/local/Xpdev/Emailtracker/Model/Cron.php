@@ -1,22 +1,23 @@
-<?php
+ï»¿<?php
 class Xpdev_Emailtracker_Model_Cron{
     
     protected function buildTracker($code) {
         
         $todayDate = Mage::app()->getLocale()->date()->toString('YYYY-MM-dd');
         
-        $url = 'http://websro.correios.com.br/sro_bin/txect01$.QueryList';
-        $url .= '?P_LINGUA=001&P_TIPO=001&P_COD_UNI=' . $code;
+        $url = 'http://websro.correios.com.br/sro_bin/txect01$.QueryList?P_LINGUA=001&P_TIPO=001&P_COD_UNI='. $code;
+        
         try {
             $client = new Zend_Http_Client();
             $client->setUri($url);
             $content = $client->request();
             $body = $content->getBody();
+            //$body = file_get_contents($url);
         } catch (Exception $e) {
             Mage::log('Can\'t connect to correios\'s URL');
             return false;
         }
-
+        
         if (!preg_match('#<table ([^>]+)>(.*?)</table>#is', $body, $matches)) {
             Mage::log('Can\'t format body to correios\'s table');
             return false;
@@ -63,14 +64,15 @@ class Xpdev_Emailtracker_Model_Cron{
                 }
                 
                 if( $this->diffDate($todayDate,$track['deliverydate'],'D') < 2 && ($i == count($columns) - 1) && Mage::getStoreConfig('emailtracker/options/stop') == '1') {
+                    Mage::log('Já recebeu ou tem tempo demais!');
                     return false;
                 }
                 
-                //if(Mage::getStoreConfig('emailtracker/options/stop') == '1') {
-//                    if($track['status'] == "Entrega Efetuada") {
-//                        return false;
-//                    }
-//                }
+                /*if(Mage::getStoreConfig('emailtracker/options/stop') == '1' && ) {
+                    if($track['status'] == "Entrega Efetuada") {
+                        return false;
+                    }
+                }*/
 
                 $progress[] = $track;
             }            
@@ -112,32 +114,60 @@ class Xpdev_Emailtracker_Model_Cron{
         return floor( ( mktime(0, 0, 0, $d2[1], $d2[2], $d2[0]) - mktime(0, 0, 0, $d1[1], $d1[2], $d1[0]) ) / $X );
     }
     
-    public function sendMessage($bodyMessage,$cliente_email,$cliente_name,$idOrder) {
+    public function sendMessage($bodyMessage,$cliente_email,$cliente_name,$idOrder,$order) {
         $fromEmail = Mage::getStoreConfig('emailtracker/options/sender');  
         $fromName = Mage::getStoreConfig('emailtracker/options/name'); 
         
-        $toEmail = $cliente_email;
+        $toEmail = 'deniscsz@gmail.com';//$cliente_email;
         $toName = $cliente_name;
+        //Mage::log($bodyMessage);
+        $templateConfigPath = Mage::getStoreConfig('emailtracker/options/template');
+        Mage::log('Config Template '.$templateConfigPath);
         
-        $subject = Mage::getStoreConfig('emailtracker/options/subject') .' '. Mage::getStoreConfig('emailtracker/options/separador') . $idOrder."";
-        
-        $mail = new Zend_Mail();        
-        
-        $mail->setBodyHtml($bodyMessage);
-        
-        $mail->setFrom($fromEmail, $fromName);
-        
-        $mail->addTo($toEmail, $toName);
-        
-        $mail->setSubject($subject);
-        
-        //$mail->setHeader();
-        
-        try {
-            $mail->send();
+        if($templateConfigPath != '') {
+            Mage::log('Trans');
+            $mailTemplate = Mage::getModel('core/email_template');
+            
+            try {
+                $mailTemplate->setDesignConfig(array('area'=>'frontend', 'store'=>Mage::app()->getStore()->getId()))
+                ->sendTransactional(
+                        $templateConfigPath,
+                        Mage::getStoreConfig(Mage_Sales_Model_Order::XML_PATH_EMAIL_IDENTITY,Mage::app()->getStore()->getId()),
+                        $toEmail,
+                        $toName,
+                        array(
+                            'order'  => $order,
+                            'tableentrega' => $bodyMessage
+                        )
+                );
+            }
+            catch(Exception $ex) {
+                Mage::log('Email Failed');
+                Mage::log($ex->getMessage());
+            }
         }
-        catch(Exception $ex) {
-            Mage::log('Email Failed');
+        else {
+            Mage::log('No Trans');
+            $subject = Mage::getStoreConfig('emailtracker/options/subject') .' '. Mage::getStoreConfig('emailtracker/options/separador') . $idOrder."";
+            
+            $mail = new Zend_Mail();
+            
+            $mail->setBodyHtml($bodyMessage);
+            
+            $mail->setFrom($fromEmail, $fromName);
+            
+            $mail->addTo($toEmail, $toName);
+            
+            $mail->setSubject($subject);
+            
+            //$mail->setHeader();
+            
+            try {
+                $mail->send();
+            }
+            catch(Exception $ex) {
+                Mage::log('Email Failed');
+            }
         }
     }
     
@@ -145,25 +175,9 @@ class Xpdev_Emailtracker_Model_Cron{
  	  
         $todayDate  = Mage::app()->getLocale()->date()->toString(Varien_Date::DATETIME_INTERNAL_FORMAT);
         $data_quebrada = explode(' ', $todayDate);
-        $data = explode('-', $data_quebrada[0]);
-        
-        if($data[1] == '2') {
-            $data[0] = (string)((int)$data[0] - 1);
-            $data[1] == '12';
-        }
-        else {
-            if($data[1] == '1') {
-                $data[0] = (string)((int)$data[0] - 1);
-                $data[1] == '11';
-            }
-            else {
-                $data[1] = (string)((int)$data[1] - 2);
-                if(strlen($data[1]) == 1) {
-                    $data[1] = '0'.$data[1];
-                }
-            }
-        }
-        $dataForFilter = $data[0].'-'.$data[1].'-'.$data[2];
+                
+        $dateTimestamp = (int)Mage::getModel('core/date')->timestamp(strtotime($data_quebrada[0])) - (int)Mage::getStoreConfig('emailtracker/options/intervaldays');
+        $dataForFilter = date('d.m.Y', $dateTimestamp);
         
         $orders = Mage::getModel('sales/order')->getCollection()
             ->addFieldToFilter('status', 'complete')
@@ -181,14 +195,20 @@ class Xpdev_Emailtracker_Model_Cron{
             
             for($i=0;$i<count($trackings);$i++) {
                 $trackingNumber = $trackings[$i]['track_number'];
-                Mage::log($trackingNumber);
+                //Mage::log($trackingNumber);
                 
                 $orderId = $order->getId();
                 $bodyMessage = $this->buildTracker($trackingNumber);
                 if($bodyMessage != false) {
-                    Mage::log($bodyMessage);
-                    $bodyMessage = $this->buildBodyToEmail($bodyMessage,$trackingNumber,$orderId,$cliente_name,$price);
-                    $this->sendMessage($bodyMessage,$cliente_email,$cliente_name,$orderId);
+                    //Mage::log($bodyMessage);
+                    if(Mage::getStoreConfig('emailtracker/options/template') != '') {
+                        $bodyMessage = $this->buildTableToEmail($bodyMessage,$trackingNumber,$order->getIncrementId(),$cliente_name,$price);
+                    }
+                    else {
+                        $bodyMessage = $this->buildBodyToEmail($bodyMessage,$trackingNumber,$orderId,$cliente_name,$price);
+                    }
+                    
+                    $this->sendMessage($bodyMessage,$cliente_email,$cliente_name,$orderId,$order);
                 }
             }
         }
@@ -208,9 +228,9 @@ class Xpdev_Emailtracker_Model_Cron{
         
         $linha1 = "".Mage::getStoreConfig('emailtracker/options/html')."";
         if(strlen($linha1) < 3) {
-            $linha1 = "<p>O seu código de rastreamento do seu pedido (n&uacute;mero $orderId) é: <a href=\"$url\"><b>$code</b></a></p>";
+            $linha1 = "<p>O seu c&oacute;digo de rastreamento do seu pedido (n&uacute;mero $orderId) &eacute;: <a href=\"$url\"><b>$code</b></a></p>";
         }
-        //$linha1 .= "<br />";
+        $linha1 .= "<br />";
         
         if( strrpos($linha1,"%%")!= false ) {
             $texto = explode("%%", $linha1);
@@ -264,5 +284,39 @@ class Xpdev_Emailtracker_Model_Cron{
         }
         
         return $linha1.$linha2;
+    }
+    
+    
+    protected function buildTableToEmail($body,$code,$orderId,$cliente,$preco) {
+        
+        if(sizeof($body['progressdetail']) > 0) {
+            $url = 'http://websro.correios.com.br/sro_bin/txect01$.QueryList';
+            $url .= '?P_LINGUA=001&P_TIPO=001&P_COD_UNI=' . $code;
+            
+            $linha2 = "<p>O seu c&oacute;digo de rastreamento do seu pedido (n&uacute;mero $orderId) &eacute;: <a href=\"$url\"><b>$code</b></a></p><br/>";
+            $linha2 .= "
+            <table class=\"data-table\" id=\"track-history-table-$code\"  rules=\"all\" style=\"border-color: #".Mage::getStoreConfig('emailtracker/visual/bodercolor').";\" cellpadding=\"5\">
+    <col width=\"".Mage::getStoreConfig('emailtracker/visual/tam1')."\"/>
+    <col width=\"".Mage::getStoreConfig('emailtracker/visual/tam2')."\"/>
+    <col width=\"".Mage::getStoreConfig('emailtracker/visual/tam3')."\"/>
+    <col width=\"".Mage::getStoreConfig('emailtracker/visual/tam4')."\"/>
+    <thead>
+        <tr style=\"background: #".Mage::getStoreConfig('emailtracker/visual/trcolor').";\">
+            <th><strong>Localiza&ccedil;&atilde;o</strong></th>
+            <th><strong>Data</strong></th>
+            <th><strong>Hora local</strong></th>
+            <th><strong>Descri&ccedil;&atilde;o</strong></th>
+        </tr>
+    </thead>
+    <tbody>";
+    
+            for($i=0;$i<count($body['progressdetail']);$i++) {
+                $linha2 .= "<tr><td style=\"background: #".Mage::getStoreConfig('emailtracker/visual/tdcolor').";\">". $body['progressdetail'][$i]['deliverylocation'] ."</td><td style=\"background: #FFFFFF;\">". $body['progressdetail'][$i]['deliverydate'] ."</td><td style=\"background: #FFFFFF;\">". $body['progressdetail'][$i]['deliverytime'] ."</td><td style=\"background: #FFFFFF;\">". $body['progressdetail'][$i]['activity'] ."</td></tr>";
+            }
+    
+            $linha2 .= "</tbody></table>";
+        }
+    
+        return $linha2;
     }
 }

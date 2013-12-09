@@ -21,7 +21,7 @@
     <crontab>
         <jobs>            
 			<emailtracker_verificaemailtracker>
-                <schedule><cron_expr>*/60 * * * *</cron_expr></schedule>
+                <schedule><cron_expr>40 05 * * *</cron_expr></schedule>
                 <run><model>emailtracker/cron::VerificaEmailTracker</model></run>
             </emailtracker_verificaemailtracker>
         </jobs>

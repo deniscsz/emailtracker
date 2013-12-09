@@ -51,6 +51,24 @@
                             <show_in_store>1</show_in_store>
                             <comment>Nome do remetente que aparecerá na caixa de entrada do usuário.</comment>
                           </name>
+                          <intervaldays translate="label">
+                            <label>Intervalo em Dias</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Tempo máximo em que um pedido terá sua entrega "vigiada"</comment>
+                          </intervaldays>
+                          <template translate="label">
+                            <label>Template para Email</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Template de E-mail Transacional. Caso vazio utiliza tabela padrão.</comment>
+                          </template>
                           <subject translate="label">
                             <label>Assunto do Email</label>
 							<frontend_type>text</frontend_type>
